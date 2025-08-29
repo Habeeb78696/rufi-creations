@@ -484,35 +484,49 @@ body.modal-open {
   }
 </style>
 
-         <form id="contactForm">
+<form id="contactForm">
   <input type="text" id="name" placeholder="Name" required />
+  
   <input 
-  type="tel" 
-  id="phone" 
-  placeholder="Phone Number" 
-  required 
-  inputmode="tel" 
-  pattern="[0-9+()\-]*" 
-/>
+    type="tel" 
+    id="phone" 
+    placeholder="Phone Number" 
+    required 
+    inputmode="tel" 
+    pattern="[0-9+()\-]*" 
+  />
+  
   <input type="email" id="email" placeholder="Email ID" required />
-
 
   <textarea id="message" placeholder="Message (Optional)"></textarea>
 
-
-<div class="checkbox-row" style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
-  <input type="checkbox" id="whatsappCheck" name="whatsapp" checked style="margin: 0; width: 18px; height: 18px;" />
-  <label for="whatsappCheck" style="font-size: 15px; line-height: 1; cursor: pointer;">WhatsApp Available</label>
-</div>
-
-
-          <button type="submit">Submit</button>
-        </form>
-        <div id="thanksMsg">✅ Thank you! Redirecting...</div>
-      </div>
-    </div>
+  <div class="checkbox-row" style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+    <input type="checkbox" id="whatsappCheck" name="whatsapp" checked style="margin: 0; width: 18px; height: 18px;" />
+    <label for="whatsappCheck" style="font-size: 15px; line-height: 1; cursor: pointer;">WhatsApp Available</label>
   </div>
-  {% endif %}
+
+  <!-- Buttons -->
+  <div style="display: flex; gap: 10px;">
+    <button type="submit" style="flex: 1; background-color: #013220; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px;">
+      Submit
+    </button>
+    <button type="button" onclick="cancelForm()" style="flex: 1; background-color: #777; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px;">
+      Cancel
+    </button>
+  </div>
+</form>
+
+<div id="thanksMsg">✅ Thank you! Redirecting...</div>
+
+<script>
+function cancelForm() {
+  // Clear all form fields
+  document.getElementById("contactForm").reset();
+  // Optionally, hide the form if needed
+  // document.getElementById("contactForm").style.display = "none";
+}
+</script>
+
 
 <div class="content-wrap">
 
