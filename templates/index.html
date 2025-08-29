@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+   <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+  <title>Rufi Creations</title>
+
+
+<style>
+/* General body styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Open Sans', sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  box-sizing: border-box; /* Make all widths include padding/border */
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+.content-wrap {
+  flex: 1;
+}
+
+/* Modal Styles */
+#formModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+#formModalContent {
+  display: flex;
+  width: 95%;
+  max-width: 900px;
+  height: 600px;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+.modal-left {
+  flex: 1;
+  {% if settings.modal_image %}
+  background: url('{{ settings.modal_image | safe }}') center center / cover no-repeat;
+  {% else %}
+  background: none;
+  {% endif %}
+}
+
+.modal-right {
+  flex: 1;
+  padding: 40px 30px;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.modal-right h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #333;
+  font-size: 24px;
+}
+
+#contactForm input,
+#contactForm textarea {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+#contactForm textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  font-size: 15px;
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: #007bff;
+}
+
+.checkbox-row label {
+  cursor: pointer;
+  margin: 0;
+}
+
+#contactForm button {
+  width: 100%;
+  padding: 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#contactForm button:hover {
+  background-color: #0056b3;
+}
+
+#thanksMsg {
+  text-align: center;
+  font-size: 18px;
+  color: green;
+  display: none;
+  margin-top: 20px;
+}
+
+/* Main content styles */
+.main-content {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.main-content h1 {
+  font-size: 36px;
+  color: #333;
+}
+
+.main-content p {
+  font-size: 18px;
+  color: #666;
+}
+
+/* Footer Styles */
+#site-footer {
+  background: #6b1e1e;
+  color: white;
+  text-align: center;
+  padding: 12px 10px;
+  font-size: 0.8rem;
+  width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+#site-footer a {
+  color: #95d5b2;
+  text-decoration: none;
+}
+
+#site-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Portfolio Section */
+.portfolio-section {
+  max-width: 1200px;
+  margin: 60px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.portfolio-section h2 {
+  font-size: 2.8rem;
+  margin-bottom: 50px;
+  color: #222;
+  position: relative;
+  display: inline-block;
+}
+
+.portfolio-section h2::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 4px;
+  background-color: #ff6f61;
+  margin: 10px auto 0;
+  border-radius: 2px;
+}
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+.portfolio-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 15px;
+  cursor: pointer;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.portfolio-item:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+}
+
+.portfolio-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+  border-radius: 15px;
+}
+
+.portfolio-item:hover img {
+  transform: scale(1.1) rotate(1deg);
+}
+
+.portfolio-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,0.8), transparent);
+  color: #fff;
+  padding: 20px;
+  opacity: 0;
+  transform: translateY(50%);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.portfolio-item:hover .portfolio-info {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.portfolio-info h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.4rem;
+}
+
+.portfolio-info a {
+  color: #ff6f61;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.portfolio-info a:hover {
+  color: #ffa38c;
+  text-decoration: underline;
+}
+    /* ========== Toggle Button ========== */
+    #chatbot-toggle-btn {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      z-index: 9999;
+    }
+    #chatbot-toggle-btn img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ========== Tooltip ========== */
+    #chatbot-tooltip {
+      position: fixed;
+      bottom: 150px;
+      right: 20px;
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: none;
+      z-index: 9999;
+    }
+    #chatbot-tooltip.show {
+      display: block;
+    }
+    #tooltip-close {
+      background: transparent;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      float: right;
+    }
+
+    /* ========== Chat Popup ========== */
+    .chatbot-popup {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      width: 320px;
+      max-height: 500px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      display: none;
+      flex-direction: column;
+      z-index: 10000;
+    }
+    .chatbot-popup.active {
+      display: flex;
+    }
+
+    .chat-header {
+      background: #4a90e2;
+      color: #fff;
+      padding: 10px;
+      border-radius: 15px 15px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .chat-header button {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .chat-box {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      font-size: 14px;
+    }
+
+    .message {
+      margin: 6px 0;
+      padding: 8px 12px;
+      border-radius: 12px;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+    .message.bot {
+      background: #f1f1f1;
+      align-self: flex-start;
+    }
+    .message.user {
+      background: #4a90e2;
+      color: #fff;
+      align-self: flex-end;
+    }
+
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #ccc;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      outline: none;
+      font-size: 14px;
+    }
+    .chat-input button {
+      padding: 10px 15px;
+      border: none;
+      background: #4a90e2;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    /* ========== Option Buttons ========== */
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 8px;
+    }
+    .button-group button {
+      background: #eee;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .button-group button:hover {
+      background: #4a90e2;
+      color: #fff;
+    }
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #formModalContent {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .modal-left {
+    display: none;
+  }
+
+  .modal-right {
+    padding: 20px;
+  }
+
+  .portfolio-section h2 {
+    font-size: 2.4rem;
+  }
+
+  .portfolio-info h3 {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .portfolio-section h2 {
+    font-size: 2rem;
+  }
+
+  .portfolio-grid {
+    gap: 15px;
+  }
+}
+</style>
+
+</head>
+<body {% if not form_submitted %}class="modal-open"{% endif %}>
+
+  {% if not form_submitted %}
+  <div id="formModal">
+    <div id="formModalContent">
+      <div class="modal-left"></div>
+      <div class="modal-right">
+ <h2 class="mobile-only">Welcome to Rufi Creations</h2>
+
+<style>
+  @media (max-width: 768px) {
+    .mobile-only {
+      display: block !important;
+    }
+  }
+  @media (min-width: 769px) {
+    .mobile-only {
+      display: none !important;
+    }
+  }
+</style>
+
+         <form id="contactForm">
+  <input type="text" id="name" placeholder="Name" required />
+  <input 
+  type="tel" 
+  id="phone" 
+  placeholder="Phone Number" 
+  required 
+  inputmode="tel" 
+  pattern="[0-9+()\-]*" 
+/>
+  <input type="email" id="email" placeholder="Email ID" required />
+
+
+  <textarea id="message" placeholder="Message (Optional)"></textarea>
+
+
+<div class="checkbox-row" style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+  <input type="checkbox" id="whatsappCheck" name="whatsapp" checked style="margin: 0; width: 18px; height: 18px;" />
+  <label for="whatsappCheck" style="font-size: 15px; line-height: 1; cursor: pointer;">WhatsApp Available</label>
+</div>
+
+
+          <button type="submit">Submit</button>
+        </form>
+        <div id="thanksMsg">✅ Thank you! Redirecting...</div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+<div class="content-wrap">
+<!-- Header -->
+<header style="background-color: #013220; color: white; padding: 20px 40px;">
+  <div style="display: flex; align-items: center; justify-content: space-between;">
+    
+    <!-- Logo + Title -->
+    <a href="/" style="text-decoration: none; color: inherit;">
+      <div style="display: flex; align-items: center;">
+        <img src="https://i.postimg.cc/wTzfpfcL/Adobe-Express-file.png" 
+             alt="Logo" 
+             style="height: 28px; margin-right: 8px;" />
+        <span style="font-family: 'Playfair Display', serif; font-size: 32px;">Rufi Creations</span>
+      </div>
+    </a>
+    
+    <!-- Mobile Number -->
+    <div style="font-size: 18px; font-weight: bold;">
+      📞 9606888425
+    </div>
+    
+  </div>
+</header>
+
+
+
+<style>
+/* Banner Wrapper */
+.banner-slider {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 0;
+}
+
+/* Banner Slides Container */
+.slides {
+  display: flex;
+  transition: transform 1s ease;
+}
+
+/* Banner Images */
+.banner-slider img {
+  min-width: 100%;
+  height: auto;          
+  max-height: 100vh;     
+  object-fit: cover;
+  display: block;
+}
+
+/* Tablet & Mobile Fix */
+@media (max-width: 768px) {
+  .banner-slider img {
+    height: auto;
+    max-height: 60vh;   
+  }
+}
+
+/* Small Phones */
+@media (max-width: 480px) {
+  .banner-slider img {
+    height: auto;
+    max-height: 50vh;   
+  }
+}
+</style>
+
+<div class="banner-slider">
+  {% set banners = [settings.banner1, settings.banner2, settings.banner3, settings.banner4, settings.banner5] %}
+  <div class="slides" id="slides">
+    {% for b in banners if b %}
+      <img src="{{ b }}" alt="Banner {{ loop.index }}">
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+const slides = document.getElementById('slides');
+const totalSlides = slides.children.length;
+let index = 0;
+
+function showNextSlide() {
+  index++;
+  if(index >= totalSlides) index = 0;
+  slides.style.transform = `translateX(-${index * 100}%)`;
+}
+
+// Auto slide every 4 seconds
+setInterval(showNextSlide, 4000);
+</script>
+
+
+
+
+<section id="brand-description" style="padding:40px;  font-family:Arial, sans-serif; color:#212529; line-height:1.6; border-top:2px solid #e0e0e0; ">
+  <div style="max-width:1000px; margin:0 auto;">
+
+    <!-- Title -->
+    <h2 style="font-size:2rem; font-weight:700; margin-bottom:20px; text-align:center; color:#800000;">
+      About Us 
+    </h2>
+
+    <!-- Intro -->
+    <p style="font-size:1.1rem; margin-bottom:20px; text-align:justify;">
+      <strong>RufiCreations</strong> is a premium lifestyle solutions company specializing in high-end home theatre systems and luxury interior design. With over <strong>30 years of expertise</strong> in audio-visual excellence and more than a decade in interior design, we bring unmatched technical mastery and design finesse to every project.
+    </p>
+
+    <!-- What We Do -->
+    <h3 style="font-size:1.5rem; font-weight:600; margin:25px 0 15px; color:#006400;">What We Do</h3>
+    <ul style="padding-left:20px; font-size:1.05rem;">
+      <li style="margin-bottom:10px;"><strong>Home Theatre Solutions –</strong> Custom-designed cinema rooms with world-class sound, visuals, and smart automation.</li>
+      <li style="margin-bottom:10px;"><strong>Luxury Interior Design –</strong> Elegant, functional spaces tailored to your lifestyle, whether for residential or commercial needs.</li>
+    </ul>
+
+    <!-- Strengths -->
+    <h3 style="font-size:1.5rem; font-weight:600; margin:25px 0 15px; color:#006400;">Our Strengths</h3>
+    <ul style="padding-left:20px; font-size:1.05rem;">
+      <li style="margin-bottom:10px;"><strong>Experience:</strong> Three decades of AV innovation and ten years of design transformation.</li>
+      <li style="margin-bottom:10px;"><strong>Customization:</strong> Every project is built around your vision, space, and preferences.</li>
+      <li style="margin-bottom:10px;"><strong>Quality:</strong> Only premium brands, superior materials, and meticulous workmanship.</li>
+      <li style="margin-bottom:10px;"><strong>Results:</strong> Spaces that look stunning, sound incredible, and feel uniquely yours.</li>
+    </ul>
+
+    <!-- Philosophy -->
+    <h3 style="font-size:1.5rem; font-weight:600; margin:25px 0 15px; color:#006400;">Our Philosophy</h3>
+    <p style="font-size:1.1rem; text-align:justify;">
+      At <strong>RufiCreations</strong>, we don’t just create rooms — we create experiences. Whether it’s the thrill of a private <strong>Dolby Atmos cinema</strong> or the elegance of a tastefully designed living space, our work transforms the way you live, relax, and entertain.
+    </p>
+
+
+
+  </div>
+</section>
+
+
+
+
+
+
+
+
+<div class="wr-container">
+  <!-- Why Ruficreations Stats -->
+  <section class="wr-stats-section">
+    <h2>Why Ruficreations?</h2>
+    <div class="wr-stats-blocks">
+      <div class="wr-stat-item">
+        <div class="wr-stat-number">175+</div>
+        <div class="wr-stat-caption">Interior Work</div>
+      </div>
+      <div class="wr-stat-item">
+        <div class="wr-stat-number">200+</div>
+        <div class="wr-stat-caption">Home Theatres</div>
+      </div>
+      <div class="wr-stat-item">
+        <div class="wr-stat-number">5+</div>
+        <div class="wr-stat-caption">Ruficreations Studios</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Complete Interiors Steps -->
+  <div class="wr-complete-home-section">
+    <div class="wr-image-section">
+      <img src="https://i.postimg.cc/cJjbvPk9/industrial-living-design-600x363.jpg" 
+           alt="Ruficreations Interior Design">
+    </div>
+    <div class="wr-steps-section">
+      <h3>Complete interiors in 3 simple steps</h3>
+
+      <!-- Step Numbers -->
+      <div class="wr-steps-numbers">
+        <span class="wr-step-btn wr-active" data-step="0">1</span>
+        <span class="wr-step-btn" data-step="1">2</span>
+        <span class="wr-step-btn" data-step="2">3</span>
+      </div>
+
+      <!-- Step Details -->
+      <div class="wr-steps-details">
+        <div class="wr-step wr-active">
+          <h4>Discover</h4>
+          <p>Share your ideas, lifestyle needs, and preferences — our experts help you shape the perfect plan.</p>
+        </div>
+        <div class="wr-step">
+          <h4>Design</h4>
+          <p>We craft a complete design package including layouts, materials, finishes, lighting, and décor.</p>
+        </div>
+        <div class="wr-step">
+          <h4>Delivery</h4>
+          <p>Enjoy on-time delivery and smooth installation with Ruficreations’ trusted service.</p>
+        </div>
+      </div>
+
+      <!-- Dots -->
+      <div class="wr-steps-dots">
+        <span class="wr-dot wr-active" data-step="0"></span>
+        <span class="wr-dot" data-step="1"></span>
+        <span class="wr-dot" data-step="2"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Call-to-Action Button -->
+  <button class="wr-get-estimate-btn">Book Free Design Session</button>
+</div>
+
+<style>
+/* Container */
+.wr-container {
+  max-width: 1100px;
+  margin: 60px auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+}
+
+/* Stats Section */
+.wr-stats-section h2 {
+  font-size: 2rem;
+  margin-bottom: 30px;
+  color: #222;
+}
+
+.wr-stats-blocks {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+}
+
+.wr-stat-item {
+  background: #f8f9fa;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.08);
+  flex: 1;
+  transition: transform 0.3s;
+}
+.wr-stat-item:hover {
+  transform: translateY(-5px);
+}
+
+.wr-stat-number {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #8b0000;
+}
+
+.wr-stat-caption {
+  font-size: 1rem;
+  margin-top: 8px;
+  color: #444;
+}
+
+/* Complete Interiors Section */
+.wr-complete-home-section {
+  display: flex;
+  gap: 40px;
+  margin-top: 60px;
+  align-items: center;
+}
+
+.wr-image-section img {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 14px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+.wr-steps-section {
+  text-align: left;
+  max-width: 550px;
+}
+
+.wr-steps-section h3 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #222;
+}
+
+.wr-steps-numbers {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+.wr-step-btn {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 50%;
+  background: #eee;
+  text-align: center;
+  font-weight: bold;
+  cursor: pointer;
+  color: #444;
+  transition: 0.3s;
+}
+.wr-step-btn.wr-active {
+  background: #8b0000;
+  color: #fff;
+}
+
+.wr-steps-details .wr-step {
+  display: none;
+}
+.wr-steps-details .wr-step.wr-active {
+  display: block;
+}
+.wr-steps-details h4 {
+  font-size: 1.2rem;
+  color: #8b0000;
+  margin-bottom: 6px;
+}
+.wr-steps-details p {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.wr-steps-dots {
+  margin-top: 20px;
+}
+.wr-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin: 0 6px;
+  background: #ccc;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.wr-dot.wr-active {
+  background: #8b0000;
+}
+
+/* CTA Button */
+.wr-get-estimate-btn {
+  margin-top: 40px;
+  background: #8b0000;
+  color: #fff;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 30px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.wr-get-estimate-btn:hover {
+  background: #600000;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .wr-complete-home-section {
+    flex-direction: column;
+    text-align: center;
+  }
+  .wr-steps-section {
+    text-align: center;
+  }
+  .wr-stats-blocks {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+</style>
+
+<script>
+// JavaScript for dynamic step switching
+const wrStepBtns = document.querySelectorAll('.wr-step-btn');
+const wrSteps = document.querySelectorAll('.wr-step');
+const wrDots = document.querySelectorAll('.wr-dot');
+
+let wrCurrentStep = 0;
+let wrTimer;
+
+function wrActivateStep(index) {
+  wrStepBtns.forEach(btn => btn.classList.remove('wr-active'));
+  wrSteps.forEach(s => s.classList.remove('wr-active'));
+  wrDots.forEach(d => d.classList.remove('wr-active'));
+
+  wrStepBtns[index].classList.add('wr-active');
+  wrSteps[index].classList.add('wr-active');
+  wrDots[index].classList.add('wr-active');
+  wrCurrentStep = index;
+}
+
+function wrNextStep() {
+  wrCurrentStep = (wrCurrentStep + 1) % wrSteps.length; // 0 → 1 → 2 → 0
+  wrActivateStep(wrCurrentStep);
+}
+
+function wrStartAutoSlide() {
+  clearInterval(wrTimer);
+  wrTimer = setInterval(wrNextStep, 5000);
+}
+
+// Click on numbers
+wrStepBtns.forEach((btn, idx) => {
+  btn.addEventListener('click', () => {
+    wrActivateStep(idx);
+    wrStartAutoSlide();
+  });
+});
+
+// Click on dots
+wrDots.forEach((dot, idx) => {
+  dot.addEventListener('click', () => {
+    wrActivateStep(idx);
+    wrStartAutoSlide();
+  });
+});
+
+// Start autoplay
+wrStartAutoSlide();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section class="portfolio-section">
+    <h2>Interior Projects We’ve Designed</h2>
+    <div class="portfolio-grid">
+<div class="portfolio-item">
+  <img src="https://i.postimg.cc/QN5N54Vz/Whats-App-Image-2025-08-13-at-13-24-51-b37ca1cf.jpg" alt="Spa Interiors">
+  <div class="portfolio-info">
+  </div>
+</div>
+
+
+      <div class="portfolio-item">
+        <img src="https://i.postimg.cc/5yPsjqcS/Whats-App-Image-2025-08-13-at-13-24-51-86be7310.jpg" alt="Salon Interiors">
+        <div class="portfolio-info">
+        </div>
+      </div>
+
+      <div class="portfolio-item">
+        <img src="https://i.postimg.cc/0jLJtb7q/Whats-App-Image-2025-08-13-at-13-24-51-3718c485.jpg" alt="Office Interiors">
+        <div class="portfolio-info">
+        </div>
+      </div>
+
+      <div class="portfolio-item">
+        <img src="https://i.postimg.cc/P5VPndZj/Whats-App-Image-2025-08-13-at-13-24-52-f08eed1f.jpg" alt="Hotel Interiors">
+        <div class="portfolio-info">
+        </div>
+      </div>
+
+      <div class="portfolio-item">
+        <img src="https://i.postimg.cc/wjsd83JG/Whats-App-Image-2025-08-13-at-13-24-53-c57ff434.jpg" alt="Cafe Interiors">
+        <div class="portfolio-info">
+        </div>
+      </div>
+
+      <div class="portfolio-item">
+        <img src="https://i.postimg.cc/YSsg4nj9/Whats-App-Image-2025-08-13-at-13-24-52-d9baef9d.jpg" alt="Restaurant Interiors">
+        <div class="portfolio-info">
+        </div>
+      </div>
+
+      <div class="portfolio-item">
+        <img src="https://i.postimg.cc/C1cFkNNV/istockphoto-1824615178-612x612.jpg" alt="Skin Clinic Interiors">
+        <div class="portfolio-info">
+        </div>
+      </div>
+
+      <div class="portfolio-item">
+        <img src="https://i.postimg.cc/4N2ncJ3S/15fba5cff446c7a98830a0b46b5f5480.jpg" alt="Dental Clinic Interiors">
+        <div class="portfolio-info">
+        </div>
+      </div>
+
+      <div class="portfolio-item">
+        <img src="https://i.postimg.cc/fR1S0wbv/Modern-interior-design-ideas-2025-by-Decorilla-scaled.jpg" alt="Dental Clinic Interiors">
+        <div class="portfolio-info">
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- 💬 Chatbot Toggle Button -->
+  <button id="chatbot-toggle-btn">
+    <img src="https://avatars.slack-edge.com/2021-03-25/1882974265975_c2814223e012464d1ead_512.png" alt="Chat" />
+  </button>
+
+  <!-- Tooltip -->
+<div id="chatbot-tooltip" style="color: black;">
+  👋 I'm an AI Chatbot, how may I assist you?
+  <button id="tooltip-close" aria-label="Close tooltip" style="color: white; background: transparent; border: none; font-size: 18px; cursor: pointer;">&times;</button>
+</div>
+
+
+  <!-- 💬 Chatbot Popup -->
+  <div class="chatbot-popup" id="chatbot-popup">
+    <div class="chat-header">
+      <span><strong>POP CHAT BOT</strong></span>
+      <button id="close-btn" aria-label="Close chatbot">&times;</button>
+    </div>
+
+    <div class="chat-box" id="chat-messages"></div>
+
+    <div class="chat-input">
+      <input type="text" id="user-input" placeholder="Type a message..." />
+      <button id="send-btn"><strong>SEND</strong></button>
+    </div>
+  </div>
+
+  <script>
+    // ================= Chatbot JS =================
+    let userInfo = { name: "", email: "", phone: "", urgency: "", service: "" };
+    let currentStep = null;
+
+    const urgencyOptions = ["Immediately", "In a week", "Not urgent"];
+    const serviceOptions = [
+      "Interior Design", "Home Décor", "Home Theatre Setup",
+      "Acoustic & Soundproofing Work", "Modular Kitchen & Wardrobes",
+      "Custom Furniture & Units", "Wall Paneling & Wallpaper",
+      "Office & Commercial Interiors"
+    ];
+
+    // Toggle popup
+    document.getElementById('chatbot-toggle-btn').addEventListener('click', () => {
+      const popup = document.getElementById('chatbot-popup');
+      popup.classList.toggle('active');
+      if (popup.classList.contains('active')) {
+        document.getElementById('chat-messages').innerHTML = '';
+        displayWelcomeMessage();
+      }
+    });
+
+    // Close popup
+    document.getElementById('close-btn').addEventListener('click', () => {
+      document.getElementById('chatbot-popup').classList.remove('active');
+    });
+
+    // Send message button & enter key
+    document.getElementById('send-btn').addEventListener('click', sendMessage);
+    document.getElementById('user-input').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // Welcome flow
+    function displayWelcomeMessage() {
+      appendMessage('bot', '👋 Welcome to Rufi Creations! How may I assist you today?');
+      setTimeout(() => {
+        appendMessage('bot', 'May I know your name?');
+        currentStep = 'name';
+        document.getElementById('user-input').placeholder = 'Type your name...';
+      }, 700);
+    }
+
+    function sendMessage() {
+      const userInput = document.getElementById('user-input').value.trim();
+      if (userInput !== '') {
+        appendMessage('user', userInput);
+        handleUserInput(userInput);
+        document.getElementById('user-input').value = '';
+      }
+    }
+
+    function appendMessage(sender, text) {
+      const chatContainer = document.getElementById('chat-messages');
+      const msg = document.createElement('div');
+      msg.className = 'message ' + sender;
+      msg.innerText = text;
+      chatContainer.appendChild(msg);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+      document.getElementById('user-input').focus();
+    }
+
+    function appendMessageWithButtons(sender, text, options) {
+      document.querySelectorAll('.button-group').forEach(btn => btn.remove());
+      appendMessage(sender, text);
+      const chatContainer = document.getElementById('chat-messages');
+      const btnGroup = document.createElement('div');
+      btnGroup.className = 'button-group';
+      options.forEach(option => {
+        const btn = document.createElement('button');
+        btn.innerText = option;
+        btn.onclick = () => {
+          appendMessage('user', option);
+          handleUserInput(option);
+          btnGroup.remove();
+        };
+        btnGroup.appendChild(btn);
+      });
+      chatContainer.appendChild(btnGroup);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function handleUserInput(userInput) {
+      const lowerInput = userInput.toLowerCase();
+
+      if (currentStep === 'name') {
+        if (userInput.length >= 4) {
+          userInfo.name = userInput;
+          currentStep = 'email';
+          appendMessage('bot', 'Thanks! May I know your email?');
+        } else {
+          appendMessage('bot', 'Please enter at least 4 characters for your name.');
+        }
+      } else if (currentStep === 'email') {
+        if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userInput)) {
+          userInfo.email = userInput;
+          currentStep = 'phone';
+          appendMessage('bot', 'Thanks! May I know your contact number?');
+        } else {
+          appendMessage('bot', 'Please enter a valid email address.');
+        }
+      } else if (currentStep === 'phone') {
+        if (/^\d{7,13}$/.test(userInput)) {
+          userInfo.phone = userInput;
+          currentStep = 'urgency';
+          appendMessageWithButtons('bot', 'How soon do you need our service?', urgencyOptions);
+        } else {
+          appendMessage('bot', 'Please enter a valid phone number (7–13 digits).');
+        }
+      } else if (currentStep === 'urgency') {
+        const matched = urgencyOptions.find(opt => opt.toLowerCase() === lowerInput);
+        if (matched) {
+          userInfo.urgency = matched;
+          currentStep = 'service';
+          appendMessageWithButtons('bot', 'Which service are you looking for?', serviceOptions);
+        } else {
+          fallbackMessage();
+        }
+      } else if (currentStep === 'service') {
+        const matched = serviceOptions.find(opt => opt.toLowerCase() === lowerInput);
+        if (matched) {
+          userInfo.service = matched;
+          currentStep = 'confirm';
+          appendMessage('bot',
+            `✅ Here's what you've provided:\n👤 Name: ${userInfo.name}\n📧 Email: ${userInfo.email}\n📞 Phone: ${userInfo.phone}\n⚡ Urgency: ${userInfo.urgency}\n🛠️ Service: ${userInfo.service}`
+          );
+          appendMessageWithButtons('bot', 'Is everything correct?', ['Yes', 'No']);
+        } else {
+          fallbackMessage();
+        }
+      } else if (currentStep === 'confirm') {
+        if (lowerInput === 'yes') {
+          sendLeadToTelegram();
+          appendMessage('bot', '🎉 Thank you! Our expert will reach out to you soon.');
+          currentStep = null;
+        } else if (lowerInput === 'no') {
+          appendMessage('bot', "Okay, let's restart. May I know your name?");
+          userInfo = { name: '', email: '', phone: '', urgency: '', service: '' };
+          currentStep = 'name';
+        } else {
+          fallbackMessage();
+        }
+      } else {
+        fallbackMessage();
+      }
+    }
+
+    function fallbackMessage() {
+      appendMessage('bot', '❗ Sorry, we didn’t understand that. You can also call us at 📞 +91 9008588030.');
+    }
+
+    function sendLeadToTelegram() {
+      fetch('/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userInfo)
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log("Lead submitted:", data);
+        });
+    }
+
+    // Tooltip auto-show
+    window.addEventListener('load', () => {
+      const tooltip = document.getElementById('chatbot-tooltip');
+      const closeBtn = document.getElementById('tooltip-close');
+
+      if (tooltip && closeBtn) {
+        tooltip.classList.add('show');
+
+        const autoHide = setTimeout(() => {
+          tooltip.classList.remove('show');
+        }, 6000);
+
+        closeBtn.addEventListener('click', () => {
+          tooltip.classList.remove('show');
+          clearTimeout(autoHide);
+        });
+      }
+    });
+  </script>
+
+
+
+<!-- FAQ Section Start -->
+<section id="faq-section" style="max-width: 1000px; margin: 60px auto; padding: 0 20px; font-family: 'Open Sans', sans-serif;">
+  <h2 style="font-size: 2.5rem; text-align: center; margin-bottom: 40px; color: #013220;">Frequently Asked Questions – Rufi Creations</h2>
+  
+  <div class="faq-item" style="border-bottom: 1px solid #ddd; padding: 15px 0;">
+    <button class="faq-question" style="width: 100%; text-align: left; font-size: 1.2rem; padding: 10px 15px; background: #f7f7f7; border: none; outline: none; cursor: pointer; transition: background 0.3s;">How can I find the best Interior Designer and Home Theatre Expert near me?</button>
+    <div class="faq-answer" style="padding: 10px 15px; display: none; font-size: 1rem; color: #333;">
+      At Rufi Creations, we specialize in luxurious interiors and high-end home theatre solutions. Simply book a consultation to discuss your vision—we bring professional design and AV expertise to your home, ensuring your space is both stunning and immersive.
+    </div>
+  </div>
+
+  <div class="faq-item" style="border-bottom: 1px solid #ddd; padding: 15px 0;">
+    <button class="faq-question" style="width: 100%; text-align: left; font-size: 1.2rem; padding: 10px 15px; background: #f7f7f7; border: none; outline: none; cursor: pointer; transition: background 0.3s;">What should I consider when selecting an Interior Designer and Home Theatre Consultant?</button>
+    <div class="faq-answer" style="padding: 10px 15px; display: none; font-size: 1rem; color: #333;">
+      When choosing Rufi Creations, consider these key points:
+      <ul style="margin-top:10px; padding-left: 20px; list-style-type: disc;">
+        <li><strong>Expertise:</strong> Our team combines interior design and advanced home theatre experience.</li>
+        <li><strong>Customized Solutions:</strong> Every space and theatre setup is designed to match your lifestyle and preferences.</li>
+        <li><strong>Communication:</strong> Clear collaboration ensures your ideas are accurately translated into reality.</li>
+        <li><strong>Budget & Timeline:</strong> Transparent pricing and realistic project schedules tailored to your requirements.</li>
+        <li><strong>Trust & Reliability:</strong> We prioritize functionality, elegance, and immersive experiences for every client.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="faq-item" style="border-bottom: 1px solid #ddd; padding: 15px 0;">
+    <button class="faq-question" style="width: 100%; text-align: left; font-size: 1.2rem; padding: 10px 15px; background: #f7f7f7; border: none; outline: none; cursor: pointer; transition: background 0.3s;">How much does it cost to hire Rufi Creations?</button>
+    <div class="faq-answer" style="padding: 10px 15px; display: none; font-size: 1rem; color: #333;">
+      We provide <strong>all-inclusive, transparent pricing</strong>. Our quotes cover interior design, supervision, smart home integration, and home theatre installation—ensuring no hidden charges. Luxury and quality remain our top priorities.
+    </div>
+  </div>
+
+  <div class="faq-item" style="border-bottom: 1px solid #ddd; padding: 15px 0;">
+    <button class="faq-question" style="width: 100%; text-align: left; font-size: 1.2rem; padding: 10px 15px; background: #f7f7f7; border: none; outline: none; cursor: pointer; transition: background 0.3s;">How long does it take to complete an Interior Design or Home Theatre Project?</button>
+    <div class="faq-answer" style="padding: 10px 15px; display: none; font-size: 1rem; color: #333;">
+      Project timelines vary depending on complexity. Standard interiors and AV setups typically take <strong>45–60 days</strong>. Specialized elements like acoustic treatments, custom cabinetry, or immersive theatre systems may require slightly more time. Timely delivery and meticulous quality are always guaranteed.
+    </div>
+  </div>
+
+  <div class="faq-item" style="border-bottom: 1px solid #ddd; padding: 15px 0;">
+    <button class="faq-question" style="width: 100%; text-align: left; font-size: 1.2rem; padding: 10px 15px; background: #f7f7f7; border: none; outline: none; cursor: pointer; transition: background 0.3s;">How do I communicate my design and theatre preferences?</button>
+    <div class="faq-answer" style="padding: 10px 15px; display: none; font-size: 1rem; color: #333;">
+      Your ideas are our blueprint. Share inspiration via images, mood boards, or functional requirements. Our team ensures interiors reflect your lifestyle, and your home theatre is optimized for <strong>perfect audio-visual experiences</strong>, creating a space that is beautiful, functional, and immersive.
+    </div>
+  </div>
+
+  <div class="faq-item" style="padding: 15px 0;">
+    <button class="faq-question" style="width: 100%; text-align: left; font-size: 1.2rem; padding: 10px 15px; background: #f7f7f7; border: none; outline: none; cursor: pointer; transition: background 0.3s;">Why Choose Rufi Creations?</button>
+    <div class="faq-answer" style="padding: 10px 15px; display: none; font-size: 1rem; color: #333;">
+      Rufi Creations is your premier partner for luxurious interiors and high-end home theatres:
+      <ul style="margin-top:10px; padding-left: 20px; list-style-type: disc;">
+        <li><strong>Expertise:</strong> Designers and AV specialists craft stunning, functional, and immersive spaces.</li>
+        <li><strong>Customized Solutions:</strong> Tailored interiors and theatre setups that reflect your taste and lifestyle.</li>
+        <li><strong>Innovative Technology:</strong> Advanced 3D visualization, acoustic planning, and smart home integration.</li>
+        <li><strong>Premium Materials & Equipment:</strong> High-quality finishes, acoustic treatments, and top-tier AV systems.</li>
+        <li><strong>Seamless Collaboration:</strong> Transparent communication keeps you informed and involved throughout the project.</li>
+        <li><strong>Timely Delivery:</strong> Projects are completed on schedule without compromising quality.</li>
+        <li><strong>Enhanced Experience:</strong> Aesthetics and immersive audio-visuals combine to create a holistic living space.</li>
+        <li><strong>Post-Installation Support:</strong> Dedicated aftercare ensures your interiors and home theatre continue to perform flawlessly.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ JS for Accordion -->
+<script>
+  document.querySelectorAll('.faq-question').forEach(button => {
+    button.addEventListener('click', () => {
+      const answer = button.nextElementSibling;
+      const isOpen = answer.style.display === 'block';
+      
+      // Close all answers
+      document.querySelectorAll('.faq-answer').forEach(ans => ans.style.display = 'none');
+      
+      // Toggle current
+      answer.style.display = isOpen ? 'none' : 'block';
+    });
+  });
+</script>
+<!-- FAQ Section End -->
+
+
+
+
+<!-- Footer -->
+<footer id="site-footer">
+  <p>
+    Contact:
+    <a href="mailto:rufi.creations@gmail.com">rufi.creations@gmail.com</a>
+  </p>
+  <div>
+    <a href="https://www.instagram.com/rufi_creations/">Instagram</a> |
+    <a href="https://www.facebook.com/profile.php?id=100088707296322">Facebook</a>
+  </div>
+  <p>&copy; 2025 <strong>Rufi Creations</strong></p>
+</footer>
+
+
+
+<style>
+#site-footer {
+  background: #6b1e1e;
+  color: white;
+  text-align: center;
+  padding: 8px 10px;   /* decreased from 12px */
+  font-size: 0.75rem;  /* slightly smaller font */
+  width: 100%;
+  line-height: 1.4;    /* compact spacing */
+}
+
+#site-footer p, #site-footer div {
+  margin: 3px 0;       /* less vertical margin */
+}
+
+#site-footer a {
+  color: inherit;
+  text-decoration: none;
+}
+
+#site-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Mobile adjustment */
+@media (max-width: 480px) {
+  #site-footer {
+    font-size: 0.7rem;
+    padding: 6px 8px;
+  }
+}
+</style>
+
+
+<script>
+  // Make footer always stick at the bottom
+  function adjustFooter() {
+    const footer = document.getElementById('site-footer');
+    const bodyHeight = document.body.offsetHeight;
+    const windowHeight = window.innerHeight;
+
+    if (bodyHeight < windowHeight) {
+      footer.style.position = 'absolute';
+      footer.style.bottom = '0';
+    } else {
+      footer.style.position = 'static';
+    }
+  }
+
+  window.addEventListener('load', adjustFooter);
+  window.addEventListener('resize', adjustFooter);
+</script>
+
+
+
+
+
+
+
+
+  <!-- JS Logic -->
+  <script src="{{ url_for('static', filename='style.js') }}"></script>
+  <script>
+
+    // Allow only numbers and + ( ) -
+document.getElementById('phone').addEventListener('input', function () {
+  this.value = this.value.replace(/[^0-9+()\-]/g, '');
+});
+
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById('contactForm');
+  if (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const message = document.getElementById('message').value.trim();
+      const whatsapp = document.getElementById('whatsappCheck').checked ? "Yes" : "No";
+
+      if (!name || !phone || !email) {
+        alert("⚠️ Please fill all required fields.");
+        return;
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert("⚠️ Please enter a valid email address.");
+        return;
+      }
+
+      fetch('/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, phone, message, whatsapp })
+      })
+      .then(async res => {
+        if (!res.ok) {
+          throw new Error('Server returned an error');
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (data.status === 'success') {
+          form.style.display = 'none';
+          document.getElementById('thanksMsg').style.display = 'block';
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 2000);
+        } else {
+          alert('❌ Submission failed.');
+        }
+      })
+      .catch(err => {
+        console.error('Fetch error:', err);
+        alert('❌ Network error. Please try again.');
+      });
+    });
+  }
+});
+
+
+  </script>
+</body>
+</html>
