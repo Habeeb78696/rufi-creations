@@ -515,27 +515,49 @@ body.modal-open {
   {% endif %}
 
 <div class="content-wrap">
+
 <!-- Header -->
-<header style="background-color: #013220; color: white; padding: 20px 40px;">
-  <div style="display: flex; align-items: center; justify-content: space-between;">
+<header style="background-color: #013220; color: white; padding: 15px 20px;">
+  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; width: 100%;">
     
     <!-- Logo + Title -->
     <a href="/" style="text-decoration: none; color: inherit;">
       <div style="display: flex; align-items: center;">
         <img src="https://i.postimg.cc/wTzfpfcL/Adobe-Express-file.png" 
              alt="Logo" 
-             style="height: 28px; margin-right: 8px;" />
-        <span style="font-family: 'Playfair Display', serif; font-size: 32px;">Rufi Creations</span>
+             style="height: 24px; margin-right: 6px;" />
+        <span style="font-family: 'Playfair Display', serif; font-size: 26px;">Rufi Creations</span>
       </div>
     </a>
     
     <!-- Mobile Number -->
-    <div style="font-size: 18px; font-weight: bold;">
+    <div class="mobile-number" style="font-size: 16px; font-weight: bold; margin-left: auto; text-align: right; flex-shrink: 0;">
       📞 9606888425
     </div>
     
   </div>
 </header>
+
+<!-- Mobile View CSS -->
+<style>
+@media (max-width: 500px) {
+  header {
+    padding: 10px 15px !important; /* smaller padding */
+  }
+  header img {
+    height: 20px !important; /* smaller logo */
+  }
+  header span {
+    font-size: 20px !important; /* smaller title */
+  }
+  .mobile-number {
+    font-size: 14px !important;
+    margin-left: auto !important; 
+    text-align: right !important; 
+  }
+}
+</style>
+
 
 
 
