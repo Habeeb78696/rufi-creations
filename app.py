@@ -540,8 +540,16 @@ def export_csv():
 # Init + Run
 # ---------------------------
 if __name__ == '__main__':
+    # Initialize database
     init_db()
-    # Ensure templates folder exists if you're using external HTML files
-    if not os.path.isdir('templates'):
-        os.makedirs('templates', exist_ok=True)
-    app.run(debug=True, host="0.0.0.0", port=8000)
+
+    # Ensure templates folder exists
+    os.makedirs('templates', exist_ok=True)
+
+    # Run Flask app
+    # For development:
+    app.run(debug=True, host="127.0.0.1", port=8000)
+
+    # For production (uncomment below and use gunicorn instead):
+    # app.run(debug=False, host="0.0.0.0", port=8000)
+
