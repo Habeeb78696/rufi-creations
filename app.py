@@ -539,6 +539,8 @@ def export_csv():
 # ---------------------------
 # Init + Run
 # ---------------------------
+import os
+
 if __name__ == '__main__':
     # Initialize database
     init_db()
@@ -546,10 +548,7 @@ if __name__ == '__main__':
     # Ensure templates folder exists
     os.makedirs('templates', exist_ok=True)
 
-    # Run Flask app
-    # For development:
-    app.run(debug=True, host="127.0.0.1", port=8000)
-
-    # For production (uncomment below and use gunicorn instead):
-    # app.run(debug=False, host="0.0.0.0", port=8000)
-
+    # Use environment PORT if set (for Render/Heroku), else default to 8000
+    port = int(os.environ.get("PORT", 8000))
+    
+    app.run(debug=True, host="0.0.0.0", port=port)
